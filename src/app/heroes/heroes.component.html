@@ -10,19 +10,5 @@
     {{ hero.name }}
   </li>
 </ul>
-
-<!-- Use ngIf to only display the selectedHero details IF the selectedHero exists -->
-<div *ngIf="selectedHero">
-  <!-- Pipes (|) format strings, such as "| uppercase." -->
-  <h2>{{ selectedHero.name | uppercase }} Details</h2>
-  <div>
-    <span>id: </span>
-    {{ selectedHero.id }}
-  </div>
-  <div>
-    <label>name:
-      <!-- 2-Way binding between element and property. -->
-      <input [(ngModel)]="selectedHero.name" placeholder="name">
-    </label>
-  </div>
-</div>
+<!-- Bind the HeroesComponent.selectedHero to the element's hero property. -->
+<app-hero-detail [hero]="selectedHero"></app-hero-detail>
