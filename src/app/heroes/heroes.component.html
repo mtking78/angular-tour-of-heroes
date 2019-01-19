@@ -1,14 +1,18 @@
 <h2>My Heroes!</h2>
 <ul class="heroes">
+  <li *ngFor="let hero of heroes">
+    <a routerLink="/detail/{{ hero.id }}">
+      <span class="badge">{{ hero.id }}</span>
+      {{ hero.name }}
+    </a>
+  </li>
   <!-- *ngFor is Angular's repeater directive. -->
-  <li 
+  <!-- <li 
     *ngFor="let hero of heroes" 
     [class.selected]="hero === selectedHero"
     (click)="onSelect(hero)"
   >
     <span class="badge">{{ hero.id }}</span>
     {{ hero.name }}
-  </li>
+  </li> -->
 </ul>
-<!-- Bind the HeroesComponent.selectedHero to the element's hero property. -->
-<app-hero-detail [hero]="selectedHero"></app-hero-detail>
