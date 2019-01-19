@@ -1,22 +1,22 @@
 import { Injectable } from '@angular/core';
-import { Hero } from './hero';
-// import { HEROES } from './mock-heroes';
 import { Observable, of } from 'rxjs';
 import { MessageService } from './message.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
+
+import { Hero } from './hero';
+// import { HEROES } from './mock-heroes';
 
 // The heroes web API expects a special header in HTTP save requests. That header is in the httpOptions constant defined in the HeroService.
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json'})
 };
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
+
 export class HeroService {
 
-  // Define the heroesUrl of the form :base/:collectionName with the address of the heroes resource on the server. Here base is the resource to which requests are made, and collectionName is the heroes data object in the in-memory-data-service.ts.
+  // Define the heroesUrl of the form 
   private heroesUrl = 'api/heroes';  // URL to web api
 
   // Modify the constructor with a parameter that declares a private messageService property. Angular will inject the singleton MessageService into that property when it creates the HeroService.
@@ -25,7 +25,7 @@ export class HeroService {
     private messageService: MessageService
   ) { }
 
-  // of(HEROES) returns an Observable<Hero[]> that emits a single value, the array of mock heroes.
+  /** GET heroes from the server */
   getHeroes(): Observable<Hero[]> {
     // TODO: send the message _after_ fetching the heroes
     this.messageService.add('HeroService: fetched heroes');
@@ -38,7 +38,20 @@ export class HeroService {
       );
   }
 
-  // GET here by id.  Will 404 if id not found.
+  /** GET heroes whose name contains search term */
+  searchHeroes(term: string): Observable<Hero[]> {
+    if (!term.trim()) {
+      // if not search term, return empty hero array
+      return of ([]);
+    }
+    return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`)
+      .pipe(
+        tap(_ => this.log(`found heroes matching "${term}"`)),
+        catchError(this.handleError<Hero[]>('searchHeroes', []))
+      );
+  }
+
+  /** GET hero by id.  Will 404 if id not found. */
   getHero(id: number): Observable<Hero> {
     // Construct a request url with the desired id.
     const url = `${this.heroesUrl}/${id}`;
@@ -48,6 +61,22 @@ export class HeroService {
       catchError(this.handleError<Hero>(`getHero id=${id}`))
     );
   }
+
+  /** GET hero by id. Return `undefined` when id not found */
+  getHeroNo404<Data>(id: number): Observable<Hero> {
+    const url = `${this.heroesUrl}/?id=${id}`;
+    return this.http.get<Hero[]>(url)
+      .pipe(
+        map(heroes => heroes[0]), // returns a {0|1} element array
+        tap(h => {
+          const outcome = h ? `fetched` : `did not find`;
+          this.log(`${outcome} hero id=${id}`);
+        }),
+        catchError(this.handleError<Hero>(`getHero id=${id}`))
+      );
+  }
+
+  ////////// Save Methods //////////
 
   /** PUT: update the hero on the server */
   updateHero (hero: Hero): Observable<any> {
